@@ -1,0 +1,112 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+entity User {
+  * id : number <<generated>>
+  ---
+  * username : text
+  * password : text
+  * email : text
+  nickname : text
+  * status : number
+  * registered_at : datetime
+  register_ip : text
+  * last_logged_at : datetime
+  login_ip : text
+  avatar : text
+}
+
+entity Role {
+  * id : number <<generated>>
+  ---
+  * name : text
+  desc : text
+}
+
+entity Team {
+  * id : number <<generated>>
+  ---
+  * name : text
+  * status : number
+  * qq_group : text
+  logo : text
+  desc : text
+}
+
+
+entity Task {
+  * id : number <<generated>>
+  ---
+  * name : text
+  * type : number
+  * status : number
+  desc : text
+  * created_at : datetime
+  completed_at : datetime
+  ---
+  * workflow_id : number <<FK>>
+  * team_id : number <<FK>>
+}
+
+entity TaskRecord {
+  * id : number <<generated>>
+  ---
+  * status : number
+  * created_at : datetime
+  assigned_at : datetime
+  completed_at : datetime
+  remark : text
+  ---
+  * user_id : number <<FK>>
+  * task_id : number <<FK>>
+  * workflow_node_id : number <<FK>>
+}
+
+entity TaskTag {
+  * id : number <<generated>>
+  ---
+  * name : text
+  desc : text
+  ---
+  * team_id : number <<FK>>
+}
+
+entity Workflow {
+  * id : number <<generated>>
+  ---
+  * name : text
+  * type : number
+  desc : text
+  ---
+  * team_id : number <<FK>>
+}
+
+entity WorkflowNode {
+  * id : number <<generated>>
+  ---
+  * name : text
+  * type : number
+  desc : text
+  seq : number
+  ---
+  * workflow_id : number <<FK>>
+}
+
+User }|--o{ Role
+User }|--o{ Team
+
+Workflow ||--|{ WorkflowNode
+Workflow }|--|| Team
+
+Task ||--o{ TaskRecord
+Task }|--|| Workflow
+Task }|--|| Team
+Task }|--o{ TaskTag
+
+TaskTag }|--|| Team
+
+TaskRecord }|--|{ User
+TaskRecord }|--|{ WorkflowNode
+
+
+@enduml
