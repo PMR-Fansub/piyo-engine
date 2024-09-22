@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	v1 "piyo-engine/api/v1"
+	"piyo-engine/internal/constant"
 	"piyo-engine/internal/model"
 	"piyo-engine/internal/repository"
-	"time"
 )
 
 type UserService interface {
@@ -32,12 +34,17 @@ type userService struct {
 }
 
 func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) error {
-	// check username
-	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	user, err := s.userRepo.GetByUsername(ctx, req.Username)
 	if err != nil {
 		return v1.ErrInternalServerError
+	} else if user != nil {
+		return v1.ErrUsernameAlreadyUse
 	}
-	if err == nil && user != nil {
+
+	user, err = s.userRepo.GetByEmail(ctx, req.Email)
+	if err != nil {
+		return v1.ErrInternalServerError
+	} else if user != nil {
 		return v1.ErrEmailAlreadyUse
 	}
 
@@ -46,29 +53,38 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 		return err
 	}
 	// Generate user ID
-	userId, err := s.sid.GenString()
+	userID, err := s.sid.GenString()
 	if err != nil {
 		return err
 	}
 	user = &model.User{
-		UserId:   userId,
+		UserID:   userID,
+		Username: req.Username,
 		Email:    req.Email,
 		Password: string(hashedPassword),
+		Status:   constant.UserStatusNormal,
 	}
-	// Transaction demo
-	err = s.tm.Transaction(ctx, func(ctx context.Context) error {
-		// Create a user
-		if err = s.userRepo.Create(ctx, user); err != nil {
-			return err
-		}
-		// TODO: other repo
-		return nil
-	})
+
+	err = s.tm.Transaction(
+		ctx, func(ctx context.Context) error {
+			// Create a user
+			if err = s.userRepo.Create(ctx, user); err != nil {
+				return err
+			}
+			return nil
+		},
+	)
 	return err
 }
 
 func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, error) {
-	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+	var user *model.User
+	var err error
+	if req.Username != "" {
+		user, err = s.userRepo.GetByUsername(ctx, req.Username)
+	} else if req.Email != "" {
+		user, err = s.userRepo.GetByEmail(ctx, req.Email)
+	}
 	if err != nil || user == nil {
 		return "", v1.ErrUnauthorized
 	}
@@ -77,7 +93,7 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 	if err != nil {
 		return "", err
 	}
-	token, err := s.jwt.GenToken(user.UserId, time.Now().Add(time.Hour*24*90))
+	token, err := s.jwt.GenToken(user.UserID, time.Now().Add(time.Hour*24*30))
 	if err != nil {
 		return "", err
 	}
@@ -92,8 +108,10 @@ func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetPro
 	}
 
 	return &v1.GetProfileResponseData{
-		UserId:   user.UserId,
-		Nickname: user.Nickname,
+		UserId:    user.UserID,
+		Username:  user.Username,
+		Nickname:  user.Nickname,
+		CreatedAt: user.CreatedAt,
 	}, nil
 }
 
@@ -103,8 +121,18 @@ func (s *userService) UpdateProfile(ctx context.Context, userId string, req *v1.
 		return err
 	}
 
-	user.Email = req.Email
-	user.Nickname = req.Nickname
+	if req.Email != "" && req.Email != user.Email {
+		otherUser, err := s.userRepo.GetByEmail(ctx, req.Email)
+		if err != nil {
+			return v1.ErrInternalServerError
+		} else if otherUser != nil && otherUser.UserID != user.UserID {
+			return v1.ErrEmailAlreadyUse
+		}
+		user.Email = req.Email
+	}
+	if req.Nickname != "" && req.Nickname != user.Nickname {
+		user.Nickname = req.Nickname
+	}
 
 	if err = s.userRepo.Update(ctx, user); err != nil {
 		return err

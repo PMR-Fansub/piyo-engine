@@ -11,9 +11,9 @@ import (
 	"piyo-engine/pkg/log"
 )
 
-// @title           Nunu Example API
+// @title           Piyo Engine API
 // @version         1.0.0
-// @description     This is a sample server celler server.
+// @description		A more powerful task management system for fansub
 // @termsOfService  http://swagger.io/terms/
 // @contact.name   API Support
 // @contact.url    http://www.swagger.io/support
@@ -38,8 +38,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	logger.Info("server start", zap.String("host", fmt.Sprintf("http://%s:%d", conf.GetString("http.host"), conf.GetInt("http.port"))))
-	logger.Info("docs addr", zap.String("addr", fmt.Sprintf("http://%s:%d/swagger/index.html", conf.GetString("http.host"), conf.GetInt("http.port"))))
+	logger.Info(
+		"server start",
+		zap.String("host", fmt.Sprintf("http://%s:%d", conf.GetString("http.host"), conf.GetInt("http.port"))),
+	)
+	logger.Info(
+		"docs addr",
+		zap.String(
+			"addr",
+			fmt.Sprintf("http://%s:%d/swagger/index.html", conf.GetString("http.host"), conf.GetInt("http.port")),
+		),
+	)
 	if err = app.Run(context.Background()); err != nil {
 		panic(err)
 	}

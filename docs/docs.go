@@ -43,7 +43,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginRequest"
+                            "$ref": "#/definitions/piyo-engine_api_v1.LoginRequest"
                         }
                     }
                 ],
@@ -51,7 +51,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponse"
+                            "$ref": "#/definitions/piyo-engine_api_v1.LoginResponse"
                         }
                     }
                 }
@@ -59,7 +59,6 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "目前只支持邮箱登录",
                 "consumes": [
                     "application/json"
                 ],
@@ -77,7 +76,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.RegisterRequest"
+                            "$ref": "#/definitions/piyo-engine_api_v1.RegisterRequest"
                         }
                     }
                 ],
@@ -85,7 +84,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.Response"
+                            "$ref": "#/definitions/piyo-engine_api_v1.Response"
                         }
                     }
                 }
@@ -112,7 +111,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponse"
+                            "$ref": "#/definitions/piyo-engine_api_v1.GetProfileResponse"
                         }
                     }
                 }
@@ -140,7 +139,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.UpdateProfileRequest"
+                            "$ref": "#/definitions/piyo-engine_api_v1.UpdateProfileRequest"
                         }
                     }
                 ],
@@ -148,7 +147,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.Response"
+                            "$ref": "#/definitions/piyo-engine_api_v1.Response"
                         }
                     }
                 }
@@ -156,36 +155,41 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponse": {
+        "piyo-engine_api_v1.GetProfileResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData"
+                    "$ref": "#/definitions/piyo-engine_api_v1.GetProfileResponseData"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.GetProfileResponseData": {
+        "piyo-engine_api_v1.GetProfileResponseData": {
             "type": "object",
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
                 "nickname": {
                     "type": "string",
                     "example": "alan"
                 },
                 "userId": {
                     "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.LoginRequest": {
+        "piyo-engine_api_v1.LoginRequest": {
             "type": "object",
             "required": [
-                "email",
                 "password"
             ],
             "properties": {
@@ -196,24 +200,29 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "123456"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "example": "foo"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponse": {
+        "piyo-engine_api_v1.LoginResponse": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer"
                 },
                 "data": {
-                    "$ref": "#/definitions/github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponseData"
+                    "$ref": "#/definitions/piyo-engine_api_v1.LoginResponseData"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.LoginResponseData": {
+        "piyo-engine_api_v1.LoginResponseData": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -221,11 +230,12 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.RegisterRequest": {
+        "piyo-engine_api_v1.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",
-                "password"
+                "password",
+                "username"
             ],
             "properties": {
                 "email": {
@@ -235,10 +245,15 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "123456"
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "example": "foo"
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.Response": {
+        "piyo-engine_api_v1.Response": {
             "type": "object",
             "properties": {
                 "code": {
@@ -250,11 +265,8 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_go-nunu_nunu-layout-advanced_api_v1.UpdateProfileRequest": {
+        "piyo-engine_api_v1.UpdateProfileRequest": {
             "type": "object",
-            "required": [
-                "email"
-            ],
             "properties": {
                 "email": {
                     "type": "string",
@@ -282,8 +294,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8000",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Nunu Example API",
-	Description:      "This is a sample server celler server.",
+	Title:            "Piyo Engine API",
+	Description:      "A more powerful task management system for fansub",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

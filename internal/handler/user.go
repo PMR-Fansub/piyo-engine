@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"net/http"
 	"piyo-engine/api/v1"
 	"piyo-engine/internal/service"
 )
@@ -23,7 +24,7 @@ func NewUserHandler(handler *Handler, userService service.UserService) *UserHand
 // Register godoc
 // @Summary 用户注册
 // @Schemes
-// @Description 目前只支持邮箱登录
+// @Description
 // @Tags 用户模块
 // @Accept json
 // @Produce json
@@ -68,9 +69,11 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 		v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
 		return
 	}
-	v1.HandleSuccess(ctx, v1.LoginResponseData{
-		AccessToken: token,
-	})
+	v1.HandleSuccess(
+		ctx, v1.LoginResponseData{
+			AccessToken: token,
+		},
+	)
 }
 
 // GetProfile godoc
@@ -120,7 +123,7 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 	}
 
 	if err := h.userService.UpdateProfile(ctx, userId, &req); err != nil {
-		v1.HandleError(ctx, http.StatusInternalServerError, v1.ErrInternalServerError, nil)
+		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
