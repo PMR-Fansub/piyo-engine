@@ -58,7 +58,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*model.U
 	var user model.User
 	if err := r.DB(ctx).Where("email = ?", email).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, v1.ErrNotFound
 		}
 		return nil, err
 	}

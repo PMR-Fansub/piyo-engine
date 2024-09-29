@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -35,9 +36,10 @@ type userService struct {
 
 func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) error {
 	user, err := s.userRepo.GetByUsername(ctx, req.Username)
-	if err != nil {
+	if err != nil && !errors.Is(err, v1.ErrNotFound) {
 		return v1.ErrInternalServerError
-	} else if user != nil {
+	}
+	if user != nil {
 		return v1.ErrUsernameAlreadyUse
 	}
 

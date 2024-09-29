@@ -19,20 +19,23 @@ import (
 
 var repositorySet = wire.NewSet(
 	repository.NewDB,
-	//repository.NewRedis,
+	// repository.NewRedis,
 	repository.NewRepository,
 	repository.NewTransaction,
 	repository.NewUserRepository,
+	repository.NewTeamRepository,
 )
 
 var serviceSet = wire.NewSet(
 	service.NewService,
 	service.NewUserService,
+	service.NewTeamService,
 )
 
 var handlerSet = wire.NewSet(
 	handler.NewHandler,
 	handler.NewUserHandler,
+	handler.NewTeamHandler,
 )
 
 var serverSet = wire.NewSet(
@@ -53,13 +56,15 @@ func newApp(
 }
 
 func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
-	panic(wire.Build(
-		repositorySet,
-		serviceSet,
-		handlerSet,
-		serverSet,
-		sid.NewSid,
-		jwt.NewJwt,
-		newApp,
-	))
+	panic(
+		wire.Build(
+			repositorySet,
+			serviceSet,
+			handlerSet,
+			serverSet,
+			sid.NewSid,
+			jwt.NewJwt,
+			newApp,
+		),
+	)
 }

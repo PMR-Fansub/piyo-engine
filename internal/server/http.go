@@ -19,6 +19,7 @@ func NewHTTPServer(
 	conf *viper.Viper,
 	jwt *jwt.JWT,
 	userHandler *handler.UserHandler,
+	teamHandler *handler.TeamHandler,
 ) *http.Server {
 	gin.SetMode(gin.DebugMode)
 	s := http.NewServer(
@@ -30,25 +31,31 @@ func NewHTTPServer(
 
 	// swagger doc
 	docs.SwaggerInfo.BasePath = "/v1"
-	s.GET("/swagger/*any", ginSwagger.WrapHandler(
-		swaggerfiles.Handler,
-		//ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", conf.GetInt("app.http.port"))),
-		ginSwagger.DefaultModelsExpandDepth(-1),
-		ginSwagger.PersistAuthorization(true),
-	))
+	s.GET(
+		"/swagger/*any", ginSwagger.WrapHandler(
+			swaggerfiles.Handler,
+			// ginSwagger.URL(fmt.Sprintf("http://localhost:%d/swagger/doc.json", conf.GetInt("app.http.port"))),
+			ginSwagger.DefaultModelsExpandDepth(-1),
+			ginSwagger.PersistAuthorization(true),
+		),
+	)
 
 	s.Use(
 		middleware.CORSMiddleware(),
 		middleware.ResponseLogMiddleware(logger),
 		middleware.RequestLogMiddleware(logger),
-		//middleware.SignMiddleware(log),
+		// middleware.SignMiddleware(log),
 	)
-	s.GET("/", func(ctx *gin.Context) {
-		logger.WithContext(ctx).Info("hello")
-		apiV1.HandleSuccess(ctx, map[string]interface{}{
-			":)": "Thank you for using nunu!",
-		})
-	})
+	s.GET(
+		"/", func(ctx *gin.Context) {
+			logger.WithContext(ctx).Info("hello")
+			apiV1.HandleSuccess(
+				ctx, map[string]interface{}{
+					":)": "Thank you for using Piyo Engine!",
+				},
+			)
+		},
+	)
 
 	v1 := s.Group("/v1")
 	{
@@ -68,6 +75,12 @@ func NewHTTPServer(
 		strictAuthRouter := v1.Group("/").Use(middleware.StrictAuth(jwt, logger))
 		{
 			strictAuthRouter.PUT("/user", userHandler.UpdateProfile)
+		}
+
+		// TODO: Struct role permission routing group
+		strictRoleAuthRouter := v1.Group("/").Use(middleware.StrictAuth(jwt, logger))
+		{
+			strictRoleAuthRouter.POST("/team", teamHandler.CreateTeam)
 		}
 	}
 

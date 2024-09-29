@@ -40,7 +40,7 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 
 	if err := h.userService.Register(ctx, req); err != nil {
 		h.logger.WithContext(ctx).Error("userService.Register error", zap.Error(err))
-		v1.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 

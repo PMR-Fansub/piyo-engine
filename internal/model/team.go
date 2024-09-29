@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Team struct {
 	gorm.Model
-	TeamID    int    `gorm:"unique;not null"`
+	TeamID    string `gorm:"unique;not null"`
 	Name      string `gorm:"not null"`
 	Status    int    `gorm:"not null"`
 	Desc      string

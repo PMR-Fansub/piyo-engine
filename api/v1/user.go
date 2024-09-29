@@ -3,7 +3,7 @@ package v1
 import "time"
 
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required,max=30" example:"foo"`
+	Username string `json:"username" binding:"required,min=3,max=30" example:"foo"`
 	Email    string `json:"email" binding:"required,email" example:"1234@gmail.com"`
 	Password string `json:"password" binding:"required" example:"123456"`
 }

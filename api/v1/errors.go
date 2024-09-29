@@ -8,7 +8,13 @@ var (
 	ErrNotFound            = newError(404, "Not Found")
 	ErrInternalServerError = newError(500, "Internal Server Error")
 
-	// more biz errors
-	ErrEmailAlreadyUse    = newError(1001, "The email is already in use.")
-	ErrUsernameAlreadyUse = newError(1002, "The username is already in use.")
+	// Business Errors
+	// Error code convention: 1 + <2-dig module id> + <2-dig error id>
+
+	// User errors
+	ErrEmailAlreadyUse    = newError(10001, "The email is already in use.")
+	ErrUsernameAlreadyUse = newError(10002, "The username is already in use.")
+
+	// Team errors
+	ErrTeamIDAlreadyUse = newError(10101, "The teamID is already in use.")
 )
