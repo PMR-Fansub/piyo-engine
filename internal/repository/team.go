@@ -12,6 +12,7 @@ import (
 type TeamRepository interface {
 	Create(ctx context.Context, team *model.Team) error
 	GetByID(ctx context.Context, id string) (*model.Team, error)
+	GetMembers(ctx context.Context, id string) ([]model.User, error)
 }
 
 func NewTeamRepository(
@@ -42,4 +43,13 @@ func (r *teamRepository) Create(ctx context.Context, team *model.Team) error {
 		return err
 	}
 	return nil
+}
+
+func (r *teamRepository) GetMembers(ctx context.Context, id string) ([]model.User, error) {
+	var team model.Team
+	team.TeamID = id
+	if err := r.DB(ctx).Model(&model.Team{}).Preload("Members").Find(&team).Error; err != nil {
+		return nil, err
+	}
+	return team.Members, nil
 }

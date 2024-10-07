@@ -9,7 +9,7 @@ type Team struct {
 	Status    int    `gorm:"not null"`
 	Desc      string
 	QQGroupID string
-	Users     []User `gorm:"many2many:user_team_role;"`
+	Members   []User `gorm:"many2many:user_team_role;"`
 }
 
 func (m *Team) TableName() string {

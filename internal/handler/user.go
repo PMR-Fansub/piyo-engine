@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"piyo-engine/api/v1"
 	"piyo-engine/internal/service"
+	"piyo-engine/internal/utils"
 )
 
 type UserHandler struct {
@@ -30,15 +31,14 @@ func NewUserHandler(handler *Handler, userService service.UserService) *UserHand
 // @Produce json
 // @Param request body v1.RegisterRequest true "params"
 // @Success 200 {object} v1.Response
-// @Router /register [post]
+// @Router /user/register [post]
 func (h *UserHandler) Register(ctx *gin.Context) {
-	req := new(v1.RegisterRequest)
-	if err := ctx.ShouldBindJSON(req); err != nil {
-		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+	var req v1.RegisterRequest
+	if err := utils.BindJSONOrBadRequest(ctx, &req); err != nil {
 		return
 	}
 
-	if err := h.userService.Register(ctx, req); err != nil {
+	if err := h.userService.Register(ctx, &req); err != nil {
 		h.logger.WithContext(ctx).Error("userService.Register error", zap.Error(err))
 		v1.HandleError(ctx, http.StatusBadRequest, err, nil)
 		return
@@ -56,11 +56,10 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 // @Produce json
 // @Param request body v1.LoginRequest true "params"
 // @Success 200 {object} v1.LoginResponse
-// @Router /login [post]
+// @Router /user/login [post]
 func (h *UserHandler) Login(ctx *gin.Context) {
 	var req v1.LoginRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+	if err := utils.BindJSONOrBadRequest(ctx, &req); err != nil {
 		return
 	}
 
@@ -117,8 +116,7 @@ func (h *UserHandler) UpdateProfile(ctx *gin.Context) {
 	userId := GetUserIdFromCtx(ctx)
 
 	var req v1.UpdateProfileRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		v1.HandleError(ctx, http.StatusBadRequest, v1.ErrBadRequest, nil)
+	if err := utils.BindJSONOrBadRequest(ctx, &req); err != nil {
 		return
 	}
 

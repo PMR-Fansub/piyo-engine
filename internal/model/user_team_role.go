@@ -1,12 +1,17 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type UserTeamRole struct {
-	gorm.Model
-	UserID uint   `gorm:"index"`
-	TeamID uint   `gorm:"index"`
-	Role   string `gorm:"not null"`
+	UserID    uint `gorm:"primaryKey"`
+	TeamID    uint `gorm:"primaryKey"`
+	Role      int  `gorm:"not null"`
+	CreatedAt time.Time
+	DeletedAt gorm.DeletedAt
 }
 
 func (m *UserTeamRole) TableName() string {
