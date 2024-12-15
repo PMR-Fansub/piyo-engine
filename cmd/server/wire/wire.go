@@ -24,6 +24,7 @@ var repositorySet = wire.NewSet(
 	repository.NewTransaction,
 	repository.NewUserRepository,
 	repository.NewTeamRepository,
+	repository.NewUserTeamRoleRepository,
 )
 
 var serviceSet = wire.NewSet(

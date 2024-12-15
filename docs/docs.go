@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/login": {
+        "/team": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -33,9 +33,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户模块"
+                    "团队模块"
                 ],
-                "summary": "账号登录",
+                "summary": "新建团队",
                 "parameters": [
                     {
                         "description": "params",
@@ -43,40 +43,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/piyo-engine_api_v1.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/piyo-engine_api_v1.LoginResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户模块"
-                ],
-                "summary": "用户注册",
-                "parameters": [
-                    {
-                        "description": "params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/piyo-engine_api_v1.RegisterRequest"
+                            "$ref": "#/definitions/piyo-engine_api_v1.CreateTeamRequest"
                         }
                     }
                 ],
@@ -85,6 +52,68 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/piyo-engine_api_v1.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/team/{team_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "团队模块"
+                ],
+                "summary": "获取团队信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "team_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/piyo-engine_api_v1.GetTeamProfileResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/team/{team_id}/members": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "团队模块"
+                ],
+                "summary": "获取团队成员列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "team_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/piyo-engine_api_v1.GetTeamMembersResponseData"
                         }
                     }
                 }
@@ -152,9 +181,100 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "账号登录",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/piyo-engine_api_v1.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/piyo-engine_api_v1.LoginResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户模块"
+                ],
+                "summary": "用户注册",
+                "parameters": [
+                    {
+                        "description": "params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/piyo-engine_api_v1.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/piyo-engine_api_v1.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "piyo-engine_api_v1.CreateTeamRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "team_id"
+            ],
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3
+                },
+                "qq_group_id": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3
+                }
+            }
+        },
         "piyo-engine_api_v1.GetProfileResponse": {
             "type": "object",
             "properties": {
@@ -172,17 +292,50 @@ const docTemplate = `{
         "piyo-engine_api_v1.GetProfileResponseData": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "nickname": {
-                    "type": "string",
-                    "example": "alan"
+                    "type": "string"
                 },
-                "userId": {
+                "user_id": {
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "piyo-engine_api_v1.GetTeamMembersResponseData": {
+            "type": "object",
+            "properties": {
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/piyo-engine_api_v1.TeamMemberProfile"
+                    }
+                }
+            }
+        },
+        "piyo-engine_api_v1.GetTeamProfileResponseData": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "qq_group_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "team_id": {
                     "type": "string"
                 }
             }
@@ -194,17 +347,14 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
+                    "type": "string"
                 },
                 "password": {
-                    "type": "string",
-                    "example": "123456"
+                    "type": "string"
                 },
                 "username": {
                     "type": "string",
-                    "maxLength": 30,
-                    "example": "foo"
+                    "maxLength": 30
                 }
             }
         },
@@ -225,7 +375,7 @@ const docTemplate = `{
         "piyo-engine_api_v1.LoginResponseData": {
             "type": "object",
             "properties": {
-                "accessToken": {
+                "access_token": {
                     "type": "string"
                 }
             }
@@ -239,17 +389,15 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
+                    "type": "string"
                 },
                 "password": {
-                    "type": "string",
-                    "example": "123456"
+                    "type": "string"
                 },
                 "username": {
                     "type": "string",
                     "maxLength": 30,
-                    "example": "foo"
+                    "minLength": 3
                 }
             }
         },
@@ -265,16 +413,34 @@ const docTemplate = `{
                 }
             }
         },
+        "piyo-engine_api_v1.TeamMemberProfile": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "joined_at": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "piyo-engine_api_v1.UpdateProfileRequest": {
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string",
-                    "example": "1234@gmail.com"
+                    "type": "string"
                 },
                 "nickname": {
-                    "type": "string",
-                    "example": "alan"
+                    "type": "string"
                 }
             }
         }

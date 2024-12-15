@@ -2,9 +2,10 @@ package server
 
 import (
 	"context"
+	"os"
+
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"os"
 	"piyo-engine/internal/model"
 	"piyo-engine/pkg/log"
 )
@@ -21,7 +22,11 @@ func NewMigrate(db *gorm.DB, log *log.Logger) *Migrate {
 	}
 }
 func (m *Migrate) Start(ctx context.Context) error {
-	if err := m.db.AutoMigrate(&model.User{}); err != nil {
+	if err := m.db.AutoMigrate(
+		&model.User{},
+		&model.Team{},
+		&model.UserTeamRole{},
+	); err != nil {
 		m.log.Error("user migrate error", zap.Error(err))
 		return err
 	}

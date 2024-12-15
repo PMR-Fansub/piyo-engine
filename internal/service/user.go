@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 	v1 "piyo-engine/api/v1"
 	"piyo-engine/internal/constant"
@@ -15,7 +16,7 @@ import (
 type UserService interface {
 	Register(ctx context.Context, req *v1.RegisterRequest) error
 	Login(ctx context.Context, req *v1.LoginRequest) (string, error)
-	GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error)
+	GetProfile(ctx context.Context, userId string) (*v1.UserBasicInfo, error)
 	UpdateProfile(ctx context.Context, userId string, req *v1.UpdateProfileRequest) error
 }
 
@@ -44,7 +45,7 @@ func (s *userService) Register(ctx context.Context, req *v1.RegisterRequest) err
 	}
 
 	user, err = s.userRepo.GetByEmail(ctx, req.Email)
-	if err != nil {
+	if err != nil && !errors.Is(err, v1.ErrNotFound) {
 		return v1.ErrInternalServerError
 	} else if user != nil {
 		return v1.ErrEmailAlreadyUse
@@ -93,23 +94,25 @@ func (s *userService) Login(ctx context.Context, req *v1.LoginRequest) (string, 
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
+		s.logger.WithContext(ctx).Error("Failed to compare password", zap.Error(err))
 		return "", err
 	}
 	token, err := s.jwt.GenToken(user.UserID, time.Now().Add(time.Hour*24*30))
 	if err != nil {
+		s.logger.WithContext(ctx).Error("Failed to generate token", zap.Error(err))
 		return "", err
 	}
 
 	return token, nil
 }
 
-func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.GetProfileResponseData, error) {
+func (s *userService) GetProfile(ctx context.Context, userId string) (*v1.UserBasicInfo, error) {
 	user, err := s.userRepo.GetByID(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return &v1.GetProfileResponseData{
+	return &v1.UserBasicInfo{
 		UserId:    user.UserID,
 		Username:  user.Username,
 		Nickname:  user.Nickname,

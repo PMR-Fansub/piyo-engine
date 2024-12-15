@@ -11,8 +11,9 @@ import (
 )
 
 type TeamService interface {
-	GetTeam(ctx context.Context, id string) (*model.Team, error)
+	GetTeamProfile(ctx context.Context, teamID string) (*v1.TeamBasicInfo, error)
 	CreateNewTeam(ctx context.Context, req *v1.CreateTeamRequest) error
+	GetTeamMembers(ctx context.Context, teamID string) (*[]v1.TeamMemberProfile, error)
 }
 
 func NewTeamService(
@@ -30,8 +31,19 @@ type teamService struct {
 	teamRepo repository.TeamRepository
 }
 
-func (s *teamService) GetTeam(ctx context.Context, id string) (*model.Team, error) {
-	return s.teamRepo.GetByID(ctx, id)
+func (s *teamService) GetTeamProfile(ctx context.Context, teamID string) (*v1.TeamBasicInfo, error) {
+	team, err := s.teamRepo.GetByID(ctx, teamID)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.TeamBasicInfo{
+		TeamID:    team.TeamID,
+		Name:      team.Name,
+		Status:    team.Status,
+		Desc:      team.Desc,
+		QQGroupID: team.QQGroupID,
+		CreatedAt: team.CreatedAt,
+	}, nil
 }
 
 func (s *teamService) CreateNewTeam(ctx context.Context, req *v1.CreateTeamRequest) error {
@@ -58,4 +70,26 @@ func (s *teamService) CreateNewTeam(ctx context.Context, req *v1.CreateTeamReque
 		},
 	)
 	return err
+}
+
+func (s *teamService) GetTeamMembers(ctx context.Context, teamID string) (*[]v1.TeamMemberProfile, error) {
+	members, err := s.teamRepo.GetMembers(ctx, teamID)
+	if err != nil {
+		return nil, err
+	}
+	var memberProfiles []v1.TeamMemberProfile
+	for _, mem := range members {
+		memberProfiles = append(
+			memberProfiles, v1.TeamMemberProfile{
+				UserBasicInfo: v1.UserBasicInfo{
+					UserId:    mem.UserID,
+					Username:  mem.Username,
+					Nickname:  mem.Nickname,
+					CreatedAt: mem.CreatedAt,
+				},
+				JoinedAt: mem.CreatedAt,
+			},
+		)
+	}
+	return &memberProfiles, nil
 }

@@ -14,9 +14,11 @@ import (
 
 var repositorySet = wire.NewSet(
 	repository.NewDB,
-	//repository.NewRedis,
+	// repository.NewRedis,
 	repository.NewRepository,
 	repository.NewUserRepository,
+	repository.NewTeamRepository,
+	repository.NewUserTeamRoleRepository,
 )
 var serverSet = wire.NewSet(
 	server.NewMigrate,
@@ -33,9 +35,11 @@ func newApp(
 }
 
 func NewWire(*viper.Viper, *log.Logger) (*app.App, func(), error) {
-	panic(wire.Build(
-		repositorySet,
-		serverSet,
-		newApp,
-	))
+	panic(
+		wire.Build(
+			repositorySet,
+			serverSet,
+			newApp,
+		),
+	)
 }
