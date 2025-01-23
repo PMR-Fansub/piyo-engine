@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	v1 "piyo-engine/api/v1"
+	"piyo-engine/api/v1"
 )
 
 // MockUserService is a mock of UserService interface.

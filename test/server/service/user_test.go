@@ -6,10 +6,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	v1 "piyo-engine/api/v1"
+	"testing"
+
+	"piyo-engine/api/v1"
 	"piyo-engine/pkg/jwt"
 	"piyo-engine/test/mocks/repository"
-	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -114,9 +115,11 @@ func TestUserService_Login(t *testing.T) {
 		t.Error("failed to hash password")
 	}
 
-	mockUserRepo.EXPECT().GetByEmail(ctx, req.Email).Return(&model.User{
-		Password: string(hashedPassword),
-	}, nil)
+	mockUserRepo.EXPECT().GetByEmail(ctx, req.Email).Return(
+		&model.User{
+			Password: string(hashedPassword),
+		}, nil,
+	)
 
 	token, err := userService.Login(ctx, req)
 
@@ -158,10 +161,12 @@ func TestUserService_GetProfile(t *testing.T) {
 	ctx := context.Background()
 	userId := "123"
 
-	mockUserRepo.EXPECT().GetByID(ctx, userId).Return(&model.User{
-		UserId: userId,
-		Email:  "test@example.com",
-	}, nil)
+	mockUserRepo.EXPECT().GetByID(ctx, userId).Return(
+		&model.User{
+			UserId: userId,
+			Email:  "test@example.com",
+		}, nil,
+	)
 
 	user, err := userService.GetProfile(ctx, userId)
 
@@ -185,10 +190,12 @@ func TestUserService_UpdateProfile(t *testing.T) {
 		Email:    "test@example.com",
 	}
 
-	mockUserRepo.EXPECT().GetByID(ctx, userId).Return(&model.User{
-		UserId: userId,
-		Email:  "old@example.com",
-	}, nil)
+	mockUserRepo.EXPECT().GetByID(ctx, userId).Return(
+		&model.User{
+			UserId: userId,
+			Email:  "old@example.com",
+		}, nil,
+	)
 	mockUserRepo.EXPECT().Update(ctx, gomock.Any()).Return(nil)
 
 	err := userService.UpdateProfile(ctx, userId, req)

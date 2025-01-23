@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"piyo-engine/internal/model"
 )
 
@@ -23,6 +24,5 @@ type userTeamRoleRepository struct {
 
 func (r *userTeamRoleRepository) GetUserTeamRole(ctx context.Context, id int64) (*model.UserTeamRole, error) {
 	var userTeamRole model.UserTeamRole
-
 	return &userTeamRole, nil
 }

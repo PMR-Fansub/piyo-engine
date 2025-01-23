@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	v1 "piyo-engine/api/v1"
+	"time"
+
+	"piyo-engine/api/v1"
 	"piyo-engine/internal/handler"
 	"piyo-engine/internal/middleware"
 	jwt2 "piyo-engine/pkg/jwt"
 	"piyo-engine/test/mocks/service"
-	"time"
 
 	"net/http"
 	"net/http/httptest"
@@ -52,7 +53,7 @@ func TestMain(m *testing.M) {
 		middleware.CORSMiddleware(),
 		middleware.ResponseLogMiddleware(logger),
 		middleware.RequestLogMiddleware(logger),
-		//middleware.SignMiddleware(log),
+		// middleware.SignMiddleware(log),
 	)
 
 	code := m.Run()
@@ -111,10 +112,12 @@ func TestUserHandler_GetProfile(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockUserService := mock_service.NewMockUserService(ctrl)
-	mockUserService.EXPECT().GetProfile(gomock.Any(), userId).Return(&v1.GetProfileResponseData{
-		UserId:   userId,
-		Nickname: "xxxxx",
-	}, nil)
+	mockUserService.EXPECT().GetProfile(gomock.Any(), userId).Return(
+		&v1.GetProfileResponseData{
+			UserId:   userId,
+			Nickname: "xxxxx",
+		}, nil,
+	)
 
 	userHandler := handler.NewUserHandler(hdl, mockUserService)
 	router.Use(middleware.NoStrictAuth(jwt, logger))
